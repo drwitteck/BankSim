@@ -2,13 +2,13 @@ package edu.temple.cis.c3238.banksim;
 
 public class AccountBalanceTestThread extends Thread {
 
-    private Bank bank;
+    private Bank myBank;
     private Account[] accounts;
     private int numAccounts;
     private int initialBalance;
 
     public AccountBalanceTestThread(Bank b, Account[] accounts, int numAccounts, int initialBalance){
-        this.bank = b;
+        this.myBank = b;
         this.accounts = accounts;
         this.numAccounts = numAccounts;
         this. initialBalance = initialBalance;
