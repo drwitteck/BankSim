@@ -16,22 +16,13 @@ public class AccountBalanceTestThread extends Thread {
 
     public void run() {
         int sum = 0;
-        //try {
-            myBank.balanceTestLock.writeLock().lock();
-//            try {
-//                myBank.balanceTestSemaphore.acquire(10);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+        myBank.balanceTestLock.writeLock().lock();
 
-            for (Account account : accounts) {
-                System.out.printf("%s %s%n",
-                        Thread.currentThread().toString(), account.toString());
-                sum += account.getBalance();
-            }
-//        } finally {
-//            myBank.balanceTestSemaphore.release(10);
-//        }
+        for (Account account : accounts) {
+            System.out.printf("%s %s%n",
+                    Thread.currentThread().toString(), account.toString());
+            sum += account.getBalance();
+        }
         myBank.balanceTestLock.writeLock().unlock();
 
         System.out.println(Thread.currentThread().toString() +
