@@ -18,14 +18,15 @@ public class BankSimMain {
             threads[i].start();
         }
         // Wait for all threads to finish
-        for (int i = 0; i < TOTAL_NUM_ACCOUNTS; i++) {
-            try {
-                threads[i].join();
-            } catch (InterruptedException ex) {
-                // Ignore this
-            }
-        }
-        bankOfDerek.test();
+//        for (int i = 0; i < TOTAL_NUM_ACCOUNTS; i++) {
+//            try {
+//                threads[i].join();
+//            } catch (InterruptedException ex) {
+//                // Ignore this
+//            }
+//        }
+//
+//        bankOfDerek.test();
     }
 }
 

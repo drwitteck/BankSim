@@ -16,8 +16,8 @@ public class AccountBalanceTestThread extends Thread {
 
     public void run() {
         int sum = 0;
-        myBank.balanceTestLock.writeLock().lock();
 
+        myBank.balanceTestLock.writeLock().lock();
         for (Account account : accounts) {
             System.out.printf("%s %s%n",
                     Thread.currentThread().toString(), account.toString());
