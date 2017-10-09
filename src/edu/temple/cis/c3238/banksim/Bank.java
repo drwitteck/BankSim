@@ -12,6 +12,7 @@ public class Bank {
     private final int initialBalance;
     private final int numAccounts;
     private boolean open;
+    private Thread testThread = new Thread();
 
     public Bank(int numAccounts, int initialBalance) {
         open = true;
@@ -30,26 +31,14 @@ public class Bank {
         if (accounts[from].withdraw(amount)) {
             accounts[to].deposit(amount);
         }
-        if (shouldTest()) test();
+        if (shouldTest()){
+            testThread = new AccountBalanceTestThread(this, accounts, initialBalance, numAccounts);
+            test();
+        }
     }
 
     public void test() {
-        int sum = 0;
-        for (Account account : accounts) {
-            System.out.printf("%s %s%n", 
-                    Thread.currentThread().toString(), account.toString());
-            sum += account.getBalance();
-        }
-        System.out.println(Thread.currentThread().toString() + 
-                " Sum: " + sum);
-        if (sum != numAccounts * initialBalance) {
-            System.out.println(Thread.currentThread().toString() + 
-                    " Money was gained or lost");
-            System.exit(1);
-        } else {
-            System.out.println(Thread.currentThread().toString() + 
-                    " The bank is in balance");
-        }
+        testThread.start();
     }
 
     public int size() {
