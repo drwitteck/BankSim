@@ -32,6 +32,12 @@ public class Bank {
         numberOfTransacts = 0;
     }
 
+    /**
+     * All threads are free to make transfers because this method is not locked.
+     * However, when transfers are not in progress, the test thread is waiting on this
+     * condition to be true so that the test thread may run. All other threads are blocked
+     * from making transfers / deposits until the test thread has completed.
+     */
     public void transfer(int from, int to, int amount) {
         accounts[from].waitForAvailableFunds(amount);
 
@@ -39,12 +45,14 @@ public class Bank {
         if (!open) return;
         if (accounts[from].withdraw(amount)) {
             accounts[to].deposit(amount);
-            ++transferCount;
-            System.out.println("Number of transfers: " + transferCount);
+            //++transferCount;
+            //System.out.println("Number of transfers: " + transferCount);
         }
         balanceTestLock.writeLock().unlock();
 
         if (shouldTest()) {
+            //If trasnfers are in progress, do not test
+            //Wait for all transfers to complete first.
             test();
         }
     }
