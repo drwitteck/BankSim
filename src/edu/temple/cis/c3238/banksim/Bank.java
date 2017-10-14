@@ -1,6 +1,5 @@
 package edu.temple.cis.c3238.banksim;
 
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -41,14 +40,14 @@ public class Bank {
     public void transfer(int from, int to, int amount) {
         accounts[from].waitForAvailableFunds(amount);
 
-        balanceTestLock.writeLock().lock();
+        //balanceTestLock.writeLock().lock();
         if (!open) return;
         if (accounts[from].withdraw(amount)) {
             accounts[to].deposit(amount);
             //++transferCount;
             //System.out.println("Number of transfers: " + transferCount);
         }
-        balanceTestLock.writeLock().unlock();
+        //balanceTestLock.writeLock().unlock();
 
         if (shouldTest()) {
             //If trasnfers are in progress, do not test
