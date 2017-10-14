@@ -1,10 +1,9 @@
 package edu.temple.cis.c3238.banksim;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 /**
  * @author Cay Horstmann
  * @author Modified by Paul Wolfgang
+ * @author Modified for CIS 3238 Lab 4 by Derek Witteck
  */
 public class Bank {
 
@@ -13,45 +12,45 @@ public class Bank {
     private long numberOfTransacts = 0;
     private final int initialBalance;
     private final int numAccounts;
-    private boolean open;
-    protected ReentrantReadWriteLock balanceTestLock;
-    private int transferCount;
+    private boolean bankOpen;
+    private boolean testThreadCurrentlyTesting;
 
     public Bank(int numAccounts, int initialBalance) {
-        open = true;
+        bankOpen = true;
         this.initialBalance = initialBalance;
         this.numAccounts = numAccounts;
         accounts = new Account[numAccounts];
-        balanceTestLock = new ReentrantReadWriteLock();
-
         for (int i = 0; i < accounts.length; i++) {
             accounts[i] = new Account(this, i, initialBalance);
         }
 
         numberOfTransacts = 0;
+        testThreadCurrentlyTesting = false;
     }
 
     /**
-     * All threads are free to make transfers because this method is not locked.
-     * However, when transfers are not in progress, the test thread is waiting on this
-     * condition to be true so that the test thread may run. All other threads are blocked
-     * from making transfers / deposits until the test thread has completed.
+     * All threads are free to make transfers because this method is not locked. When the
+     * number of threads making transfers is > 0, the test does nothing; when it is 0 the
+     * test will proceed and the flag will be updated to testing. The transfer threads
+     * will check this flag before they begin transferring. If the flag is true the threads
+     * will wait, if false they will proceed to transfer.
+     *
      */
     public void transfer(int from, int to, int amount) {
+        while (testThreadCurrentlyTesting);
+        numberOfTransacts++;
+        System.out.println("Before" + numberOfTransacts);
         accounts[from].waitForAvailableFunds(amount);
 
-        //balanceTestLock.writeLock().lock();
-        if (!open) return;
+        if (!bankOpen) return;
+
         if (accounts[from].withdraw(amount)) {
             accounts[to].deposit(amount);
-            //++transferCount;
-            //System.out.println("Number of transfers: " + transferCount);
         }
-        //balanceTestLock.writeLock().unlock();
+        numberOfTransacts--;
+        System.out.println("After " + numberOfTransacts);
 
         if (shouldTest()) {
-            //If trasnfers are in progress, do not test
-            //Wait for all transfers to complete first.
             test();
         }
     }
@@ -61,15 +60,19 @@ public class Bank {
         testThread.start();
     }
 
+    public synchronized boolean shouldTest() {
+        return (numberOfTransacts + 1) % NTEST == 0;
+    }
+
     public int size() {
         return accounts.length;
     }
     
-    public synchronized boolean isOpen() {return open;}
+    public synchronized boolean isBankOpen() {return bankOpen;}
     
     public void closeBank() {
         synchronized (this) {
-            open = false;
+            bankOpen = false;
         }
 
         for (Account account : accounts) {
@@ -78,9 +81,13 @@ public class Bank {
             }
         }
     }
-    
-    public synchronized boolean shouldTest() {
-        return ++numberOfTransacts % NTEST == 0;
+
+    public void setTestThreadCurrentlyTesting(boolean testThreadCurrentlyTesting) {
+        this.testThreadCurrentlyTesting = testThreadCurrentlyTesting;
+    }
+
+    public long getNumberOfTransacts() {
+        return numberOfTransacts;
     }
 
 }

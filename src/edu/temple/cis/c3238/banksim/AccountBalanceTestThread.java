@@ -1,5 +1,8 @@
 package edu.temple.cis.c3238.banksim;
 
+/**
+ * @author Derek Witteck
+ */
 public class AccountBalanceTestThread extends Thread {
 
     private Bank myBank;
@@ -11,20 +14,20 @@ public class AccountBalanceTestThread extends Thread {
         this.myBank = b;
         this.accounts = accounts;
         this.numAccounts = numAccounts;
-        this. initialBalance = initialBalance;
+        this.initialBalance = initialBalance;
     }
 
+    @Override
     public void run() {
+        myBank.setTestThreadCurrentlyTesting(true);
+        while(myBank.getNumberOfTransacts() > 0);
         int sum = 0;
 
-        myBank.balanceTestLock.writeLock().lock();
         for (Account account : accounts) {
             System.out.printf("%s %s%n",
                     Thread.currentThread().toString(), account.toString());
             sum += account.getBalance();
         }
-        myBank.balanceTestLock.writeLock().unlock();
-
         System.out.println(Thread.currentThread().toString() +
                 " Sum: " + sum);
         if (sum != numAccounts * initialBalance) {
@@ -35,5 +38,6 @@ public class AccountBalanceTestThread extends Thread {
             System.out.println(Thread.currentThread().toString() +
                     " The bank is in balance");
         }
+        myBank.setTestThreadCurrentlyTesting(false);
     }
 }

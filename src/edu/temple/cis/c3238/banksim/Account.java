@@ -3,6 +3,7 @@ package edu.temple.cis.c3238.banksim;
 /**
  * @author Cay Horstmann
  * @author Modified by Paul Wolfgang
+ * @author Modified for CIS 3238 Lab 4 by Derek Witteck
  */
 public class Account {
 
@@ -21,7 +22,7 @@ public class Account {
     }
     
     public synchronized void waitForAvailableFunds(int amount) {
-        while (myBank.isOpen() && amount >= balance) {
+        while (myBank.isBankOpen() && amount >= balance) {
             try {
                 wait();
             } catch (InterruptedException ex) { /* ignore */ }

@@ -2,6 +2,7 @@ package edu.temple.cis.c3238.banksim;
 /**
  * @author Cay Horstmann
  * @author Modified by Paul Wolfgang
+ * @author Modified for CIS 3238 Lab 4 by Derek Witteck
  */
 class TransferThread extends Thread {
 
