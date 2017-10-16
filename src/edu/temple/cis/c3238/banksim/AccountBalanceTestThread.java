@@ -19,15 +19,23 @@ public class AccountBalanceTestThread extends Thread {
 
     @Override
     public void run() {
-        myBank.setTestThreadCurrentlyTesting(true);
-
+        //myBank.setTestThreadCurrentlyTesting(true);
         int sum = 0;
 
-        for (Account account : accounts) {
-            System.out.printf("%s %s%n",
-                    Thread.currentThread().toString(), account.toString());
-            sum += account.getBalance();
+        try {
+            myBank.semaphore.acquire(10);
+            for (Account account : accounts) {
+                System.out.printf("%s %s%n",
+                        Thread.currentThread().toString(), account.toString());
+                sum += account.getBalance();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
+        finally {
+            myBank.semaphore.release();
+        }
+
         System.out.println(Thread.currentThread().toString() +
                 " Sum: " + sum);
         if (sum != numAccounts * initialBalance) {
@@ -38,6 +46,6 @@ public class AccountBalanceTestThread extends Thread {
             System.out.println(Thread.currentThread().toString() +
                     " The bank is in balance");
         }
-        myBank.setTestThreadCurrentlyTesting(false);
+        //myBank.setTestThreadCurrentlyTesting(false);
     }
 }

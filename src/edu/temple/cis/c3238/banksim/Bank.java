@@ -1,5 +1,7 @@
 package edu.temple.cis.c3238.banksim;
 
+import java.util.concurrent.Semaphore;
+
 /**
  * @author Cay Horstmann
  * @author Modified by Paul Wolfgang
@@ -13,43 +15,42 @@ public class Bank {
     private final int initialBalance;
     private final int numAccounts;
     private boolean bankOpen;
-    private boolean testThreadCurrentlyTesting;
+    public Semaphore semaphore;
+    //private boolean testThreadCurrentlyTesting;
 
     public Bank(int numAccounts, int initialBalance) {
         bankOpen = true;
         this.initialBalance = initialBalance;
         this.numAccounts = numAccounts;
         accounts = new Account[numAccounts];
+        semaphore = new Semaphore(10);
+
         for (int i = 0; i < accounts.length; i++) {
             accounts[i] = new Account(this, i, initialBalance);
         }
 
         numberOfTransacts = 0;
-        testThreadCurrentlyTesting = false;
+        //testThreadCurrentlyTesting = false;
     }
 
-    /**
-     * All threads are free to make transfers because this method is not locked. When the
-     * number of threads making transfers is > 0, the test does nothing; when it is 0 the
-     * test will proceed and the flag will be updated to testing. The transfer threads
-     * will check this flag before they begin transferring. If the flag is true the threads
-     * will wait, if false they will proceed to transfer.
-     *
-     */
     public void transfer(int from, int to, int amount) {
-        while (testThreadCurrentlyTesting);
-        numberOfTransacts++;
+        //while (testThreadCurrentlyTesting);
         accounts[from].waitForAvailableFunds(amount);
-
         if (!bankOpen) return;
-
-        if (accounts[from].withdraw(amount)) {
-            accounts[to].deposit(amount);
+        try {
+            semaphore.acquire();
+            if (accounts[from].withdraw(amount)) {
+                accounts[to].deposit(amount);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        numberOfTransacts--;
+        finally {
+            semaphore.release();
+        }
 
         if (shouldTest()) {
-            while(numberOfTransacts == 0);
+            //while(numberOfTransacts == 0);
             test();
         }
     }
@@ -60,7 +61,7 @@ public class Bank {
     }
 
     public synchronized boolean shouldTest() {
-        return (numberOfTransacts + 1) % NTEST == 0;
+        return ++numberOfTransacts % NTEST == 0;
     }
 
     public int size() {
@@ -81,12 +82,12 @@ public class Bank {
         }
     }
 
-    public void setTestThreadCurrentlyTesting(boolean testThreadCurrentlyTesting) {
-        this.testThreadCurrentlyTesting = testThreadCurrentlyTesting;
-    }
+//    public void setTestThreadCurrentlyTesting(boolean testThreadCurrentlyTesting) {
+//        this.testThreadCurrentlyTesting = testThreadCurrentlyTesting;
+//    }
 
-    public long getNumberOfTransacts() {
-        return numberOfTransacts;
-    }
-
+//    public long getNumberOfTransacts() {
+//        return numberOfTransacts;
+//    }
+//
 }
