@@ -33,7 +33,7 @@ public class AccountBalanceTestThread extends Thread {
             e.printStackTrace();
         }
         finally {
-            myBank.semaphore.release();
+            myBank.semaphore.release(10);
         }
 
         System.out.println(Thread.currentThread().toString() +
