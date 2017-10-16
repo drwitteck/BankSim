@@ -39,7 +39,6 @@ public class Bank {
     public void transfer(int from, int to, int amount) {
         while (testThreadCurrentlyTesting);
         numberOfTransacts++;
-        System.out.println("Before" + numberOfTransacts);
         accounts[from].waitForAvailableFunds(amount);
 
         if (!bankOpen) return;
@@ -48,9 +47,9 @@ public class Bank {
             accounts[to].deposit(amount);
         }
         numberOfTransacts--;
-        System.out.println("After " + numberOfTransacts);
 
         if (shouldTest()) {
+            while(numberOfTransacts == 0);
             test();
         }
     }

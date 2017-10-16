@@ -20,7 +20,7 @@ public class AccountBalanceTestThread extends Thread {
     @Override
     public void run() {
         myBank.setTestThreadCurrentlyTesting(true);
-        while(myBank.getNumberOfTransacts() > 0);
+
         int sum = 0;
 
         for (Account account : accounts) {
